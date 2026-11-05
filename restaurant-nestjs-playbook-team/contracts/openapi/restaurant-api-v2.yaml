@@ -1,0 +1,2335 @@
+openapi: 3.0.3
+info:
+  title: Restaurant Reservation Platform — Contract V2
+  version: 2.0.0
+  description: Thiết kế contract-first cho NestJS Hướng 2. `x-implementation` phân biệt existing/planned/adapt; server
+    mock là mô phỏng, không đại diện RabbitMQ thật.
+servers:
+- url: http://localhost:4010
+  description: Stateful mock HTTP local
+- url: http://localhost:8080
+  description: NestJS gateway (chỉ hỗ trợ endpoint đã implement)
+tags:
+- name: Auth
+- name: Booking
+- name: Operations
+- name: Tracking
+- name: Notification
+- name: Gateway
+paths:
+  /api/auth/register:
+    post:
+      tags:
+      - Auth
+      summary: Khách đăng ký tài khoản
+      operationId: auth_1_post
+      x-implementation: existing
+      x-roles: PUBLIC
+      responses:
+        '201':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterInput'
+  /api/auth/login:
+    post:
+      tags:
+      - Auth
+      summary: Đăng nhập lấy access token và refresh cookie
+      operationId: auth_2_post
+      x-implementation: existing
+      x-roles: PUBLIC
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInput'
+  /api/auth/refresh:
+    post:
+      tags:
+      - Auth
+      summary: Xoay vòng refresh session
+      operationId: auth_3_post
+      x-implementation: existing
+      x-roles: PUBLIC
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security: []
+  /api/auth/logout:
+    post:
+      tags:
+      - Auth
+      summary: Thu hồi refresh session
+      operationId: auth_4_post
+      x-implementation: existing
+      x-roles: PUBLIC
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ok'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security: []
+  /api/auth/change-password:
+    post:
+      tags:
+      - Auth
+      summary: Đổi mật khẩu khi đã đăng nhập
+      operationId: auth_5_post
+      x-implementation: planned
+      x-roles: CUSTOMER|STAFF|MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ok'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordChange'
+  /api/users/me:
+    get:
+      tags:
+      - Auth
+      summary: Xem tài khoản hiện tại
+      operationId: auth_6_get
+      x-implementation: existing
+      x-roles: CUSTOMER|STAFF|MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+    patch:
+      tags:
+      - Auth
+      summary: Cập nhật họ tên/số điện thoại
+      operationId: auth_7_patch
+      x-implementation: planned
+      x-roles: CUSTOMER|STAFF|MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPatch'
+  /api/users/staff:
+    get:
+      tags:
+      - Auth
+      summary: Danh sách nhân viên
+      operationId: auth_8_get
+      x-implementation: planned
+      x-roles: MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserList'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+    post:
+      tags:
+      - Auth
+      summary: Quản lý tạo tài khoản lễ tân
+      operationId: auth_9_post
+      x-implementation: existing
+      x-roles: MANAGER
+      responses:
+        '201':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StaffCreate'
+  /api/users/{id}/status:
+    patch:
+      tags:
+      - Auth
+      summary: Khóa/mở tài khoản
+      operationId: auth_10_patch
+      x-implementation: planned
+      x-roles: MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: &id001
+          type: string
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountStatusInput'
+  /api/restaurants/current:
+    get:
+      tags:
+      - Operations
+      summary: Thông tin nhà hàng công khai
+      operationId: operations_11_get
+      x-implementation: planned
+      x-roles: PUBLIC
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Restaurant'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security: []
+  /api/restaurants/current/areas:
+    get:
+      tags:
+      - Operations
+      summary: Danh sách khu vực công khai
+      operationId: operations_12_get
+      x-implementation: planned
+      x-roles: PUBLIC
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AreaArray'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security: []
+  /api/slots:
+    get:
+      tags:
+      - Operations
+      summary: Danh sách ca phục vụ theo ngày
+      operationId: operations_13_get
+      x-implementation: planned
+      x-roles: PUBLIC
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlotArray'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security: []
+      parameters:
+      - name: date
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+  /api/availability:
+    get:
+      tags:
+      - Operations
+      summary: Tra cứu bàn có khả năng đáp ứng (không giữ bàn)
+      operationId: operations_14_get
+      x-implementation: planned
+      x-roles: PUBLIC
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Availability'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security: []
+      parameters:
+      - name: date
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: slotCode
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: partySize
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+  /api/bookings:
+    post:
+      tags:
+      - Booking
+      summary: Tạo yêu cầu đặt bàn bất đồng bộ, cần Idempotency-Key
+      operationId: booking_15_post
+      x-implementation: existing
+      x-roles: CUSTOMER|STAFF|MANAGER
+      responses:
+        '202':
+          description: Chỉ tiếp nhận bất đồng bộ, KHÔNG đồng nghĩa xác nhận đặt bàn hoặc hủy thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingReceipt'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+        description: Một key / một payload / một customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingInput'
+  /api/bookings/mine:
+    get:
+      tags:
+      - Booking
+      summary: Liệt kê đặt bàn của tài khoản hiện tại
+      operationId: booking_16_get
+      x-implementation: existing
+      x-roles: CUSTOMER|STAFF|MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingList'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: state
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+  /api/bookings/{id}:
+    get:
+      tags:
+      - Booking
+      summary: Chi tiết đặt bàn, kiểm tra ownership
+      operationId: booking_17_get
+      x-implementation: existing
+      x-roles: CUSTOMER|STAFF|MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+  /api/bookings/{id}/cancellation-requests:
+    post:
+      tags:
+      - Booking
+      summary: Gửi yêu cầu hủy, chưa hủy ngay
+      operationId: booking_18_post
+      x-implementation: existing
+      x-roles: CUSTOMER|STAFF|MANAGER
+      responses:
+        '202':
+          description: Chỉ tiếp nhận bất đồng bộ, KHÔNG đồng nghĩa xác nhận đặt bàn hoặc hủy thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancellationReceipt'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelInput'
+  /api/bookings/commands/{commandId}:
+    get:
+      tags:
+      - Booking
+      summary: Xem kết quả xử lý yêu cầu hủy
+      operationId: booking_19_get
+      x-implementation: existing
+      x-roles: CUSTOMER|STAFF|MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancellationCommand'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: commandId
+        in: path
+        required: true
+        schema: *id001
+  /api/operations/reservations:
+    get:
+      tags:
+      - Operations
+      summary: Danh sách điều phối, lọc state/date/slotId
+      operationId: operations_20_get
+      x-implementation: existing
+      x-roles: STAFF|MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationList'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: date
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: slotId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: state
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+  /api/operations/reservations/{id}:
+    get:
+      tags:
+      - Operations
+      summary: Chi tiết đặt bàn cho nhân viên
+      operationId: operations_21_get
+      x-implementation: planned
+      x-roles: STAFF|MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+  /api/operations/reservations/{id}/{action}:
+    post:
+      tags:
+      - Operations
+      summary: 'Chuyển trạng thái: confirm/reject/check-in/seat/complete/no-show/cancel'
+      operationId: operations_22_post
+      x-implementation: existing
+      x-roles: STAFF|MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransitionResult'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      - name: action
+        in: path
+        required: true
+        schema:
+          type: string
+          example: confirm
+          enum:
+          - confirm
+          - reject
+          - check-in
+          - seat
+          - complete
+          - no-show
+          - cancel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransitionInput'
+      description: Phải kiểm tra expectedVersion; confirm bắt buộc tableId; reject/cancel cần reason; guards thời gian
+        chưa có trong starter.
+  /api/operations/tables:
+    get:
+      tags:
+      - Operations
+      summary: Danh sách bàn có trạng thái hoạt động
+      operationId: operations_23_get
+      x-implementation: existing
+      x-roles: STAFF|MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TableArray'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+    post:
+      tags:
+      - Operations
+      summary: Tạo bàn
+      operationId: operations_24_post
+      x-implementation: existing
+      x-roles: MANAGER
+      responses:
+        '201':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Table'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TableInput'
+  /api/operations/tables/{id}:
+    patch:
+      tags:
+      - Operations
+      summary: Sửa bàn/khóa bàn
+      operationId: operations_25_patch
+      x-implementation: existing
+      x-roles: MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Table'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: T02
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TablePatch'
+  /api/operations/areas:
+    get:
+      tags:
+      - Operations
+      summary: Quản lý khu vực
+      operationId: operations_26_get
+      x-implementation: planned
+      x-roles: STAFF|MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AreaArray'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+    post:
+      tags:
+      - Operations
+      summary: Thêm khu vực
+      operationId: operations_27_post
+      x-implementation: planned
+      x-roles: MANAGER
+      responses:
+        '201':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Area'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AreaInput'
+  /api/operations/areas/{id}:
+    patch:
+      tags:
+      - Operations
+      summary: Sửa khu vực
+      operationId: operations_28_patch
+      x-implementation: planned
+      x-roles: MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Area'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: T02
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AreaInput'
+  /api/operations/slot-configs:
+    get:
+      tags:
+      - Operations
+      summary: Danh sách định nghĩa ca
+      operationId: operations_29_get
+      x-implementation: planned
+      x-roles: STAFF|MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlotConfigArray'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+    post:
+      tags:
+      - Operations
+      summary: Tạo ca
+      operationId: operations_30_post
+      x-implementation: planned
+      x-roles: MANAGER
+      responses:
+        '201':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlotConfig'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SlotConfigInput'
+  /api/operations/slot-configs/{code}:
+    patch:
+      tags:
+      - Operations
+      summary: Sửa ca
+      operationId: operations_31_patch
+      x-implementation: planned
+      x-roles: MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlotConfig'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+          example: lunch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SlotConfigInput'
+  /api/operations/stats/summary:
+    get:
+      tags:
+      - Operations
+      summary: Thống kê theo trạng thái trong DB Operations
+      operationId: operations_32_get
+      x-implementation: planned
+      x-roles: MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsSummary'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: date
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+  /api/tracking/bookings/{id}/timeline:
+    get:
+      tags:
+      - Tracking
+      summary: Timeline các state event; đảm bảo owner/role
+      operationId: tracking_33_get
+      x-implementation: existing
+      x-roles: CUSTOMER|STAFF|MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Timeline'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+  /api/tracking/bookings/{id}/status:
+    get:
+      tags:
+      - Tracking
+      summary: Read model trạng thái và phiên bản mới nhất
+      operationId: tracking_34_get
+      x-implementation: planned
+      x-roles: CUSTOMER|STAFF|MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+  /api/notifications/mine:
+    get:
+      tags:
+      - Notification
+      summary: Thông báo tài khoản hiện tại
+      operationId: notification_35_get
+      x-implementation: existing
+      x-roles: CUSTOMER|STAFF|MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationList'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+      - name: unreadOnly
+        in: query
+        required: false
+        schema:
+          type: boolean
+  /api/notifications/unread-count:
+    get:
+      tags:
+      - Notification
+      summary: Số thông báo chưa đọc
+      operationId: notification_36_get
+      x-implementation: planned
+      x-roles: CUSTOMER|STAFF|MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnreadCount'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+  /api/notifications/{id}/read:
+    post:
+      tags:
+      - Notification
+      summary: Đánh dấu đã đọc; starter hiện dùng eventId
+      operationId: notification_37_post
+      x-implementation: adapt
+      x-roles: CUSTOMER|STAFF|MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+  /api/notifications/read-all:
+    post:
+      tags:
+      - Notification
+      summary: Đánh dấu tất cả đã đọc
+      operationId: notification_38_post
+      x-implementation: planned
+      x-roles: CUSTOMER|STAFF|MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ok'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+  /api/notifications/preferences:
+    get:
+      tags:
+      - Notification
+      summary: Xem tùy chọn thông báo
+      operationId: notification_39_get
+      x-implementation: planned
+      x-roles: CUSTOMER|STAFF|MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPreferences'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+    patch:
+      tags:
+      - Notification
+      summary: Cập nhật tùy chọn thông báo
+      operationId: notification_40_patch
+      x-implementation: planned
+      x-roles: CUSTOMER|STAFF|MANAGER
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPreferences'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationPreferences'
+  /api/health:
+    get:
+      tags:
+      - Gateway
+      summary: Health của Gateway (hiện trả gateway ok)
+      operationId: gateway_41_get
+      x-implementation: existing
+      x-roles: PUBLIC
+      responses:
+        '200':
+          description: Thành công; xem schema phản hồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GatewayHealth'
+        '400':
+          description: Dữ liệu sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột trạng thái/trùng bàn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          example: CONFLICT
+        message:
+          type: string
+          example: Trạng thái đặt bàn đã thay đổi
+        correlationId: *id001
+        details:
+          type: object
+          additionalProperties: true
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - correlationId
+    PageMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+          minimum: 1
+        limit:
+          type: integer
+          example: 20
+          minimum: 1
+        total:
+          type: integer
+          example: 1
+          minimum: 0
+        totalPages:
+          type: integer
+          example: 1
+          minimum: 0
+      additionalProperties: false
+      required:
+      - page
+      - limit
+      - total
+      - totalPages
+    User:
+      type: object
+      properties:
+        id: *id001
+        email:
+          type: string
+          example: guest@example.test
+          format: email
+        fullName:
+          type: string
+          example: Khách thử nghiệm
+        phone:
+          type: string
+          example: 0900000000
+        role:
+          type: string
+          example: CUSTOMER
+          enum:
+          - CUSTOMER
+          - STAFF
+          - MANAGER
+        active:
+          type: boolean
+          example: true
+        createdAt: &id002
+          type: string
+          example: '2026-11-10T11:30:00+07:00'
+          format: date-time
+      additionalProperties: false
+      required:
+      - id
+      - email
+      - fullName
+      - role
+      - active
+    RegisterInput:
+      type: object
+      properties:
+        email:
+          type: string
+          example: guest@example.test
+          format: email
+        password:
+          type: string
+          example: StrongPass123!
+          minLength: 8
+        fullName:
+          type: string
+          example: Khách thử nghiệm
+        phone:
+          type: string
+          example: 0900000000
+      additionalProperties: false
+      required:
+      - email
+      - password
+      - fullName
+    LoginInput:
+      type: object
+      properties:
+        email:
+          type: string
+          example: guest@example.test
+          format: email
+        password:
+          type: string
+          example: StrongPass123!
+          minLength: 8
+      additionalProperties: false
+      required:
+      - email
+      - password
+    AuthTokens:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: mock-token-customer
+        tokenType:
+          type: string
+          example: Bearer
+        expiresIn:
+          type: integer
+          example: 900
+        user:
+          $ref: '#/components/schemas/User'
+      additionalProperties: false
+      required:
+      - accessToken
+      - tokenType
+      - expiresIn
+      - user
+    UserPatch:
+      type: object
+      properties:
+        fullName:
+          type: string
+          example: Nguyễn Văn B
+        phone:
+          type: string
+          example: 0912345678
+      additionalProperties: false
+    PasswordChange:
+      type: object
+      properties:
+        currentPassword:
+          type: string
+          example: StrongPass123!
+        newPassword:
+          type: string
+          example: AnotherStrongPass123!
+      additionalProperties: false
+      required:
+      - currentPassword
+      - newPassword
+    StaffCreate:
+      type: object
+      properties:
+        email:
+          type: string
+          example: staff@example.test
+          format: email
+        password:
+          type: string
+          example: StrongPass123!
+        fullName:
+          type: string
+          example: Lễ tân mẫu
+      additionalProperties: false
+      required:
+      - email
+      - password
+      - fullName
+    AccountStatusInput:
+      type: object
+      properties:
+        active:
+          type: boolean
+          example: false
+      additionalProperties: false
+      required:
+      - active
+    Restaurant:
+      type: object
+      properties:
+        id:
+          type: string
+          example: rest-001
+        name:
+          type: string
+          example: Nhà hàng Demo
+        timezone:
+          type: string
+          example: Asia/Ho_Chi_Minh
+        address:
+          type: string
+          example: Đà Nẵng
+        phone:
+          type: string
+          example: '0236000000'
+        cancelBeforeMinutes:
+          type: integer
+          example: 120
+        noShowAfterMinutes:
+          type: integer
+          example: 15
+        checkinEarlyMinutes:
+          type: integer
+          example: 30
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - timezone
+    Area:
+      type: object
+      properties:
+        id:
+          type: string
+          example: main
+        name:
+          type: string
+          example: Sảnh chính
+        active:
+          type: boolean
+          example: true
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - active
+    AreaInput:
+      type: object
+      properties:
+        id:
+          type: string
+          example: terrace
+        name:
+          type: string
+          example: Sân vườn
+        active:
+          type: boolean
+          example: true
+      additionalProperties: false
+      required:
+      - id
+      - name
+    Table:
+      type: object
+      properties:
+        id:
+          type: string
+          example: T02
+        areaId:
+          type: string
+          example: main
+        name:
+          type: string
+          example: Bàn số 2
+        capacity:
+          type: integer
+          example: 4
+          minimum: 1
+        active:
+          type: boolean
+          example: true
+      additionalProperties: false
+      required:
+      - id
+      - areaId
+      - capacity
+      - active
+    TableInput:
+      type: object
+      properties:
+        id:
+          type: string
+          example: T05
+        areaId:
+          type: string
+          example: main
+        name:
+          type: string
+          example: Bàn số 5
+        capacity:
+          type: integer
+          example: 4
+          minimum: 1
+      additionalProperties: false
+      required:
+      - id
+      - areaId
+      - capacity
+    TablePatch:
+      type: object
+      properties:
+        areaId:
+          type: string
+          example: terrace
+        name:
+          type: string
+          example: Bàn cạnh cửa sổ
+        capacity:
+          type: integer
+          example: 6
+          minimum: 1
+        active:
+          type: boolean
+          example: true
+      additionalProperties: false
+    Slot:
+      type: object
+      properties:
+        code:
+          type: string
+          example: dinner
+        date: &id003
+          type: string
+          example: '2026-11-10'
+          format: date
+        startsAt: *id002
+        endsAt:
+          type: string
+          example: '2026-11-10T19:30:00+07:00'
+          format: date-time
+        bookingOpen:
+          type: boolean
+          example: true
+      additionalProperties: false
+      required:
+      - code
+      - date
+      - startsAt
+      - endsAt
+      - bookingOpen
+    SlotConfigInput:
+      type: object
+      properties:
+        code:
+          type: string
+          example: lunch
+        startsAtLocal:
+          type: string
+          example: '11:30'
+        endsAtLocal:
+          type: string
+          example: '13:00'
+        active:
+          type: boolean
+          example: true
+      additionalProperties: false
+      required:
+      - code
+      - startsAtLocal
+      - endsAtLocal
+    Availability:
+      type: object
+      properties:
+        date: *id003
+        slotCode:
+          type: string
+          example: dinner
+        partySize:
+          type: integer
+          example: 4
+          minimum: 1
+        available:
+          type: boolean
+          example: true
+        availableTableCount:
+          type: integer
+          example: 3
+          minimum: 0
+        note:
+          type: string
+          example: Tham khảo, không giữ bàn
+      additionalProperties: false
+      required:
+      - date
+      - slotCode
+      - partySize
+      - available
+      - availableTableCount
+    BookingInput:
+      type: object
+      properties:
+        slotId:
+          type: string
+          example: 2026-11-10-dinner
+          pattern: ^\d{4}-\d{2}-\d{2}-(lunch|dinner)$
+        partySize:
+          type: integer
+          example: 4
+          minimum: 1
+          maximum: 12
+        note:
+          type: string
+          example: Gần cửa sổ
+        contactPhone:
+          type: string
+          example: 0900000000
+      additionalProperties: false
+      required:
+      - slotId
+      - partySize
+    BookingReceipt:
+      type: object
+      properties:
+        bookingId: *id001
+        processingStatus:
+          type: string
+          example: QUEUED
+          enum:
+          - QUEUED
+        createdAt: *id002
+      additionalProperties: false
+      required:
+      - bookingId
+      - processingStatus
+    Booking:
+      type: object
+      properties:
+        bookingId: *id001
+        customerId: *id001
+        slotId:
+          type: string
+          example: 2026-11-10-dinner
+        partySize:
+          type: integer
+          example: 4
+          minimum: 1
+        note:
+          type: string
+          example: Gần cửa sổ
+        state:
+          type: string
+          example: REQUESTED
+          enum: &id004
+          - REQUESTED
+          - CONFIRMED
+          - REJECTED
+          - CANCELLED
+          - CHECKED_IN
+          - SEATED
+          - COMPLETED
+          - NO_SHOW
+          nullable: true
+        version:
+          type: integer
+          example: 2
+          minimum: 0
+        tableId:
+          type: string
+          example: T02
+        createdAt: *id002
+        updatedAt: *id002
+      additionalProperties: false
+      required:
+      - bookingId
+      - customerId
+      - slotId
+      - partySize
+      - state
+      - version
+    BookingList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Booking'
+        meta:
+          $ref: '#/components/schemas/PageMeta'
+      additionalProperties: false
+      required:
+      - data
+      - meta
+    CancelInput:
+      type: object
+      properties:
+        reason:
+          type: string
+          example: Đổi lịch
+      additionalProperties: false
+    CancellationReceipt:
+      type: object
+      properties:
+        commandId: *id001
+        bookingId: *id001
+        status:
+          type: string
+          example: PENDING
+          enum:
+          - PENDING
+      additionalProperties: false
+      required:
+      - commandId
+      - bookingId
+      - status
+    CancellationCommand:
+      type: object
+      properties:
+        commandId: *id001
+        bookingId: *id001
+        status:
+          type: string
+          example: ACCEPTED
+          enum:
+          - PENDING
+          - ACCEPTED
+          - REJECTED
+        reason:
+          type: string
+          example: Đã quá giờ cho phép hủy
+        createdAt: *id002
+        resolvedAt: *id002
+      additionalProperties: false
+      required:
+      - commandId
+      - bookingId
+      - status
+    Reservation:
+      type: object
+      properties:
+        bookingId: *id001
+        customerId: *id001
+        slotId:
+          type: string
+          example: 2026-11-10-dinner
+        partySize:
+          type: integer
+          example: 4
+          minimum: 1
+        state: &id005
+          type: string
+          example: REQUESTED
+          enum: *id004
+        version:
+          type: integer
+          example: 2
+          minimum: 1
+        tableId:
+          type: string
+          example: T02
+        createdAt: *id002
+        updatedAt: *id002
+      additionalProperties: false
+      required:
+      - bookingId
+      - customerId
+      - slotId
+      - partySize
+      - state
+      - version
+    ReservationList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reservation'
+        meta:
+          $ref: '#/components/schemas/PageMeta'
+      additionalProperties: false
+      required:
+      - data
+      - meta
+    TransitionInput:
+      type: object
+      properties:
+        expectedVersion:
+          type: integer
+          example: 1
+          minimum: 1
+        tableId:
+          type: string
+          example: T02
+        reason:
+          type: string
+          example: Khách không đến
+      additionalProperties: false
+      required:
+      - expectedVersion
+    TransitionResult:
+      type: object
+      properties:
+        bookingId: *id001
+        state: *id005
+        version:
+          type: integer
+          example: 2
+          minimum: 1
+        tableId:
+          type: string
+          example: T02
+      additionalProperties: false
+      required:
+      - bookingId
+      - state
+      - version
+    TimelineEntry:
+      type: object
+      properties:
+        eventId: *id001
+        bookingId: *id001
+        previousState: *id005
+        state: *id005
+        aggregateVersion:
+          type: integer
+          example: 2
+          minimum: 1
+        actorId:
+          type: string
+          example: staff-001
+        reason:
+          type: string
+          example: Đã phân bàn
+        occurredAt: *id002
+      additionalProperties: false
+      required:
+      - eventId
+      - bookingId
+      - state
+      - aggregateVersion
+      - occurredAt
+    Timeline:
+      type: object
+      properties:
+        bookingId: *id001
+        currentState: *id005
+        version:
+          type: integer
+          example: 2
+          minimum: 0
+        gapDetected:
+          type: boolean
+          example: false
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimelineEntry'
+      additionalProperties: false
+      required:
+      - bookingId
+      - events
+    Notification:
+      type: object
+      properties:
+        id: *id001
+        eventId: *id001
+        bookingId: *id001
+        type:
+          type: string
+          example: BOOKING_CONFIRMED
+        title:
+          type: string
+          example: Đặt bàn đã được xác nhận
+        message:
+          type: string
+          example: Bàn T02 đã được xác nhận
+        readAt: *id002
+        createdAt: *id002
+        deliveryStatus:
+          type: string
+          example: SENT
+      additionalProperties: false
+      required:
+      - id
+      - bookingId
+      - title
+      - message
+      - createdAt
+    NotificationList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notification'
+        meta:
+          $ref: '#/components/schemas/PageMeta'
+        unreadCount:
+          type: integer
+          example: 2
+          minimum: 0
+      additionalProperties: false
+      required:
+      - data
+      - meta
+      - unreadCount
+    UnreadCount:
+      type: object
+      properties:
+        unreadCount:
+          type: integer
+          example: 2
+          minimum: 0
+      additionalProperties: false
+      required:
+      - unreadCount
+    UserList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        meta:
+          $ref: '#/components/schemas/PageMeta'
+      additionalProperties: false
+      required:
+      - data
+      - meta
+    TableArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Table'
+    AreaArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Area'
+    SlotArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Slot'
+    SlotConfig:
+      type: object
+      properties:
+        code:
+          type: string
+          example: lunch
+        startsAtLocal:
+          type: string
+          example: '11:30'
+        endsAtLocal:
+          type: string
+          example: '13:00'
+        active:
+          type: boolean
+          example: true
+      additionalProperties: false
+      required:
+      - code
+      - startsAtLocal
+      - endsAtLocal
+      - active
+    SlotConfigArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/SlotConfig'
+    GatewayHealth:
+      type: object
+      properties:
+        gateway:
+          type: string
+          example: ok
+        ok:
+          type: boolean
+      additionalProperties: false
+      required:
+      - gateway
+    NotificationPreferences:
+      type: object
+      properties:
+        emailEnabled:
+          type: boolean
+          example: true
+        inAppEnabled:
+          type: boolean
+          example: true
+      additionalProperties: false
+      required:
+      - emailEnabled
+      - inAppEnabled
+    StatsSummary:
+      type: object
+      properties:
+        date: *id003
+        total:
+          type: integer
+          example: 20
+          minimum: 0
+        requested:
+          type: integer
+          example: 3
+          minimum: 0
+        confirmed:
+          type: integer
+          example: 10
+          minimum: 0
+        checkedIn:
+          type: integer
+          example: 2
+          minimum: 0
+        completed:
+          type: integer
+          example: 3
+          minimum: 0
+        cancelled:
+          type: integer
+          example: 1
+          minimum: 0
+        noShow:
+          type: integer
+          example: 1
+          minimum: 0
+      additionalProperties: false
+      required:
+      - date
+      - total
+    Ok:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: true
+      additionalProperties: false
+      required:
+      - ok

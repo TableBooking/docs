@@ -1,0 +1,1181 @@
+{
+  "info": {
+    "name": "Restaurant Platform NestJS V2 — Contract 41 API",
+    "description": "Collection generated from API Catalog V2. Mock baseUrl localhost:4010. Set Bearer token in env after login; Login test auto stores token. CAUTION: some endpoints remain planned in NestJS V1.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /api/auth/register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Khách đăng ký tài khoản | Implementation: existing; Roles: PUBLIC",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"guest@example.test\",\n  \"password\": \"StrongPass123!\",\n  \"fullName\": \"Khách thử nghiệm\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/auth/login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Đăng nhập lấy access token và refresh cookie | Implementation: existing; Roles: PUBLIC",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"guest@example.test\",\n  \"password\": \"StrongPass123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if(pm.response.code === 200) {",
+                  " const x=pm.response.json();",
+                  " pm.collectionVariables.set(\"accessToken\",x.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/auth/refresh",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Xoay vòng refresh session | Implementation: existing; Roles: PUBLIC",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/auth/logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Thu hồi refresh session | Implementation: existing; Roles: PUBLIC",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/auth/change-password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/change-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "change-password"
+              ]
+            },
+            "description": "Đổi mật khẩu khi đã đăng nhập | Implementation: planned; Roles: CUSTOMER|STAFF|MANAGER",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"StrongPass123!\",\n  \"newPassword\": \"AnotherStrongPass123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/users/me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me"
+              ]
+            },
+            "description": "Xem tài khoản hiện tại | Implementation: existing; Roles: CUSTOMER|STAFF|MANAGER"
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /api/users/me",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me"
+              ]
+            },
+            "description": "Cập nhật họ tên/số điện thoại | Implementation: planned; Roles: CUSTOMER|STAFF|MANAGER",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/users/staff",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/staff",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "staff"
+              ]
+            },
+            "description": "Danh sách nhân viên | Implementation: planned; Roles: MANAGER"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/users/staff",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/staff",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "staff"
+              ]
+            },
+            "description": "Quản lý tạo tài khoản lễ tân | Implementation: existing; Roles: MANAGER",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"staff@example.test\",\n  \"password\": \"StrongPass123!\",\n  \"fullName\": \"Lễ tân mẫu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /api/users/{id}/status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/22222222-2222-4222-8222-222222222222/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "22222222-2222-4222-8222-222222222222",
+                "status"
+              ]
+            },
+            "description": "Khóa/mở tài khoản | Implementation: planned; Roles: MANAGER",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"active\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Booking",
+      "item": [
+        {
+          "name": "POST /api/bookings",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "postman-{{$guid}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings"
+              ]
+            },
+            "description": "Tạo yêu cầu đặt bàn bất đồng bộ, cần Idempotency-Key | Implementation: existing; Roles: CUSTOMER|STAFF|MANAGER",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slotId\": \"2026-11-10-dinner\",\n  \"partySize\": 4\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if(pm.response.code === 202) {",
+                  " pm.collectionVariables.set(\"bookingId\",pm.response.json().bookingId);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/bookings/mine",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/mine",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "mine"
+              ]
+            },
+            "description": "Liệt kê đặt bàn của tài khoản hiện tại | Implementation: existing; Roles: CUSTOMER|STAFF|MANAGER"
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/bookings/{id}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "Chi tiết đặt bàn, kiểm tra ownership | Implementation: existing; Roles: CUSTOMER|STAFF|MANAGER"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/bookings/{id}/cancellation-requests",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/cancellation-requests",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "{{bookingId}}",
+                "cancellation-requests"
+              ]
+            },
+            "description": "Gửi yêu cầu hủy, chưa hủy ngay | Implementation: existing; Roles: CUSTOMER|STAFF|MANAGER",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/bookings/commands/{commandId}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/commands/{{commandId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "commands",
+                "{{commandId}}"
+              ]
+            },
+            "description": "Xem kết quả xử lý yêu cầu hủy | Implementation: existing; Roles: CUSTOMER|STAFF|MANAGER"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Operations",
+      "item": [
+        {
+          "name": "GET /api/restaurants/current",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/restaurants/current",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "restaurants",
+                "current"
+              ]
+            },
+            "description": "Thông tin nhà hàng công khai | Implementation: planned; Roles: PUBLIC",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/restaurants/current/areas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/restaurants/current/areas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "restaurants",
+                "current",
+                "areas"
+              ]
+            },
+            "description": "Danh sách khu vực công khai | Implementation: planned; Roles: PUBLIC",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/slots",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/slots?date=2026-11-10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "slots"
+              ]
+            },
+            "description": "Danh sách ca phục vụ theo ngày | Implementation: planned; Roles: PUBLIC",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/availability",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/availability?date=2026-11-10&slotCode=dinner&partySize=4",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "availability"
+              ]
+            },
+            "description": "Tra cứu bàn có khả năng đáp ứng (không giữ bàn) | Implementation: planned; Roles: PUBLIC",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/operations/reservations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/operations/reservations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "operations",
+                "reservations"
+              ]
+            },
+            "description": "Danh sách điều phối, lọc state/date/slotId | Implementation: existing; Roles: STAFF|MANAGER"
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/operations/reservations/{id}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/operations/reservations/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "operations",
+                "reservations",
+                "{{bookingId}}"
+              ]
+            },
+            "description": "Chi tiết đặt bàn cho nhân viên | Implementation: planned; Roles: STAFF|MANAGER"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/operations/reservations/{id}/{action}",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/operations/reservations/{{bookingId}}/confirm",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "operations",
+                "reservations",
+                "{{bookingId}}",
+                "confirm"
+              ]
+            },
+            "description": "Chuyển trạng thái: confirm/reject/check-in/seat/complete/no-show/cancel | Implementation: existing; Roles: STAFF|MANAGER",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expectedVersion\": 1,\n  \"tableId\": \"T02\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/operations/tables",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/operations/tables",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "operations",
+                "tables"
+              ]
+            },
+            "description": "Danh sách bàn có trạng thái hoạt động | Implementation: existing; Roles: STAFF|MANAGER"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/operations/tables",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/operations/tables",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "operations",
+                "tables"
+              ]
+            },
+            "description": "Tạo bàn | Implementation: existing; Roles: MANAGER",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"T05\",\n  \"areaId\": \"main\",\n  \"capacity\": 4\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /api/operations/tables/{id}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/operations/tables/T02",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "operations",
+                "tables",
+                "T02"
+              ]
+            },
+            "description": "Sửa bàn/khóa bàn | Implementation: existing; Roles: MANAGER",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/operations/areas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/operations/areas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "operations",
+                "areas"
+              ]
+            },
+            "description": "Quản lý khu vực | Implementation: planned; Roles: STAFF|MANAGER"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/operations/areas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/operations/areas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "operations",
+                "areas"
+              ]
+            },
+            "description": "Thêm khu vực | Implementation: planned; Roles: MANAGER",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"terrace\",\n  \"name\": \"Sân vườn\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /api/operations/areas/{id}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/operations/areas/main",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "operations",
+                "areas",
+                "main"
+              ]
+            },
+            "description": "Sửa khu vực | Implementation: planned; Roles: MANAGER",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"terrace\",\n  \"name\": \"Sân vườn\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/operations/slot-configs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/operations/slot-configs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "operations",
+                "slot-configs"
+              ]
+            },
+            "description": "Danh sách định nghĩa ca | Implementation: planned; Roles: STAFF|MANAGER"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/operations/slot-configs",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/operations/slot-configs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "operations",
+                "slot-configs"
+              ]
+            },
+            "description": "Tạo ca | Implementation: planned; Roles: MANAGER",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"lunch\",\n  \"startsAtLocal\": \"11:30\",\n  \"endsAtLocal\": \"13:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /api/operations/slot-configs/{code}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/operations/slot-configs/lunch",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "operations",
+                "slot-configs",
+                "lunch"
+              ]
+            },
+            "description": "Sửa ca | Implementation: planned; Roles: MANAGER",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"lunch\",\n  \"startsAtLocal\": \"11:30\",\n  \"endsAtLocal\": \"13:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/operations/stats/summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/operations/stats/summary?date=2026-11-10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "operations",
+                "stats",
+                "summary"
+              ]
+            },
+            "description": "Thống kê theo trạng thái trong DB Operations | Implementation: planned; Roles: MANAGER"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tracking",
+      "item": [
+        {
+          "name": "GET /api/tracking/bookings/{id}/timeline",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tracking/bookings/{{bookingId}}/timeline",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tracking",
+                "bookings",
+                "{{bookingId}}",
+                "timeline"
+              ]
+            },
+            "description": "Timeline các state event; đảm bảo owner/role | Implementation: existing; Roles: CUSTOMER|STAFF|MANAGER"
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/tracking/bookings/{id}/status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tracking/bookings/{{bookingId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tracking",
+                "bookings",
+                "{{bookingId}}",
+                "status"
+              ]
+            },
+            "description": "Read model trạng thái và phiên bản mới nhất | Implementation: planned; Roles: CUSTOMER|STAFF|MANAGER"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Notification",
+      "item": [
+        {
+          "name": "GET /api/notifications/mine",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/mine",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "mine"
+              ]
+            },
+            "description": "Thông báo tài khoản hiện tại | Implementation: existing; Roles: CUSTOMER|STAFF|MANAGER"
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/notifications/unread-count",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/unread-count",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "unread-count"
+              ]
+            },
+            "description": "Số thông báo chưa đọc | Implementation: planned; Roles: CUSTOMER|STAFF|MANAGER"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/notifications/{id}/read",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/{{bookingId}}/read",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "{{bookingId}}",
+                "read"
+              ]
+            },
+            "description": "Đánh dấu đã đọc; starter hiện dùng eventId | Implementation: adapt; Roles: CUSTOMER|STAFF|MANAGER"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/notifications/read-all",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/read-all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "read-all"
+              ]
+            },
+            "description": "Đánh dấu tất cả đã đọc | Implementation: planned; Roles: CUSTOMER|STAFF|MANAGER"
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/notifications/preferences",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/preferences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "preferences"
+              ]
+            },
+            "description": "Xem tùy chọn thông báo | Implementation: planned; Roles: CUSTOMER|STAFF|MANAGER"
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /api/notifications/preferences",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/preferences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "preferences"
+              ]
+            },
+            "description": "Cập nhật tùy chọn thông báo | Implementation: planned; Roles: CUSTOMER|STAFF|MANAGER",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emailEnabled\": true,\n  \"inAppEnabled\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Gateway",
+      "item": [
+        {
+          "name": "GET /api/health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ]
+            },
+            "description": "Health của Gateway (hiện trả gateway ok) | Implementation: existing; Roles: PUBLIC",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:4010"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "bookingId",
+      "value": "44444444-4444-4444-8444-444444444444"
+    },
+    {
+      "key": "commandId",
+      "value": "77777777-7777-4777-8777-777777777777"
+    }
+  ]
+}

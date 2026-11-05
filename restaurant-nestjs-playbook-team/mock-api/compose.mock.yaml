@@ -1,0 +1,10 @@
+# Optional mock-only: docker compose -f mock-api/compose.mock.yaml up --build
+services:
+  mock-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports: ['127.0.0.1:4010:4010']
+    environment:
+      PORT: '4010'
+      HOST: '0.0.0.0'

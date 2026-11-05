@@ -1,0 +1,8 @@
+{
+  "name": "restaurant-mock-api",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {"start": "node server.mjs", "test": "node --test test.mjs"},
+  "engines": {"node": ">=22"}
+}

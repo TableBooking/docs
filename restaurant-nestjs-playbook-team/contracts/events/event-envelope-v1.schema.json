@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Restaurant Event Envelope V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["eventId","eventType","schemaVersion","aggregateId","occurredAt","producer","correlationId","data"],
+  "properties": {
+    "eventId": {"type":"string","format":"uuid"},
+    "eventType": {"type":"string","minLength":1},
+    "schemaVersion": {"const":1},
+    "aggregateId": {"type":"string","format":"uuid"},
+    "aggregateVersion": {"type":"integer","minimum":1},
+    "occurredAt": {"type":"string","format":"date-time"},
+    "producer": {"type":"string","minLength":1},
+    "correlationId": {"type":"string","format":"uuid"},
+    "data": {"type":"object"}
+  }
+}
